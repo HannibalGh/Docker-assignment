@@ -1,12 +1,13 @@
 #  Dockerised Flask Data API
-
 ## Table of Contents
 - [Overview](#overview)
 - [Project Structure](#project-structure)
-- [Setup & Installation](#setup--installation)
-- [Testing](#usage)
+- [Getting Started](#getting-started)
+- [Testing](#testing)
 - [Example Response](#example-response)
-- [What I Learned](#what-i-learned)
+- [Challenges & Lessons Learned](#challenges--lessons-learned)
+- [Reflections & Next Steps](#reflections--next-steps)
+
 
 ##  Overview
 This project is a lightweight Flask web service, containerised with Docker.
@@ -30,7 +31,7 @@ docker-assignment/
 └── .gitignore       # Ignore venv, cache files, etc.
 ```
 
-## Setup & Installation
+## Getting Started
 To run this project on your local machine, follow these steps:
 ### 1. Clone the repo
 ```bash
@@ -85,69 +86,126 @@ Unlike ```curl.exe```, which displays the raw JSON as a single text string,
 }
 ```
 
-## What I Learned
+## Challenges & Lessons Learned
 
-### My Learning Approach
+### Approach & Process
+When I first read the assignment specification, I recognised that I was already familiar with some of the required tasks, but other parts would require further research. I also factored the three-hour time constraint into my planning, which shaped how I prioritised learning and execution.
+
 
 #### Planning
-- **What I did:** I broke down the assignment requirements: *“Run a lightweight webserver, expose `/data`, return JSON”*.  
-- **How I approached it:** I researched which lightweight Python web frameworks are commonly used for quick JSON APIs. From reading tutorials and developer discussions, I found that Flask was the most popular and simple option for this kind of task.  
-- **What I learned:** Even if you don’t know the answer immediately, you can analyse requirements and research the right tool to match the problem.  
+- **Understanding requirements:** I carefully read the assignment and broke it down into smaller tasks:  
+  1. Run a lightweight webserver.  
+  2. Expose a `/data` endpoint.  
+  3. Return a JSON response with unsorted numbers, sorted numbers, unique numbers, and a timestamp.  
+  4. Containerise the application with Docker and make it accessible via `curl`.  
+
+- **Researching options:** I explored which Python web frameworks are suitable for building small APIs quickly. From tutorials and developer discussions, I compared options like **Flask** (minimal, widely used), **FastAPI** (modern, async, but heavier for a simple task), and **Django** (too big for the scope). Flask stood out as the most appropriate choice.  
+
+- **Planning the API flow:** I mapped out the steps the application would need to follow:  
+  1. Generate random integers.  
+  2. Sort and deduplicate the list.  
+  3. Wrap results in JSON with a timestamp.  
+  4. Return the JSON when `/data` is requested.  
+
+- **Designing for containerisation:** I considered how the application would run inside Docker:  
+  - The app should bind to `0.0.0.0` so it’s reachable outside the container.  
+  - Ports needed to be explicitly mapped (`7774:7774`).  
+  - Dependencies should be captured in `requirements.txt` for reproducibility.  
+
+- **What I learned:** Even without knowing the solution up front, you can break down requirements into smaller problems, research the right tools for each, and sketch out the architecture before writing a single line of code.
 
 ---
 
 #### Execution
 
 **1. Flask basics**  
-- **What I learned:** How to create a minimal Flask application, what `Flask(__name__)` does, and how `@app.route` defines endpoints. Function names don’t affect the URL path, but the route path (e.g. `/data`) does — if it doesn’t match, `curl` will return a *404 Not Found* error.  
-- **How I learned it:** I read Flask’s official quickstart guide, tested small snippets locally (e.g., changing function names vs. route paths), and experimented until I understood how requests mapped to functions.  
+
+- **What I learned:**  
+  - How to create a minimal Flask application.  
+  - Why `Flask(__name__)` is used — it tells Flask where to find resources (templates, configs) and establishes the current module as the application entry point.  
+  - How `@app.route` defines endpoints. Function names themselves don’t affect the URL path, but the route string (e.g. `/data`) does — if it doesn’t match, requests will return a **404 Not Found**.  
+
+- **How I learned it:**  
+I read Flask’s [official quickstart guide](https://flask.palletsprojects.com/en/latest/quickstart/) and then tested small snippets locally — for example, changing function names vs. route paths to see which ones actually changed the behaviour. This hands-on debugging helped me understand exactly how Flask maps requests to functions.
+
+
 
 ---
-
 **2. Returning JSON properly**  
+
 - **What I learned:**  
   - The difference between returning raw text, dictionaries, and `jsonify()`.  
-  - Flask will still return JSON if you return a dictionary directly (it auto-converts in modern versions).  
-  - Using `jsonify()` is safer and more explicit — it ensures the response has the correct JSON formatting and headers.  
-  - APIs need structured JSON because they’re designed for machines (browsers, apps, other services) to consume data reliably. JSON provides a consistent, language-independent way to structure responses. Unlike raw text, JSON can be parsed unambiguously — e.g., a mobile app doesn’t need to “guess” what `"hello world"` means, it gets `{"hello": "world"}` instead.  
-- **How I learned it:** I tested different return types in Flask:  
-  - Plain string → came back as raw text with `Content-Type: text/html`.  
-  - Dictionary → Flask auto-returned JSON with correct headers.  
-  - `jsonify(...)` → explicitly returned JSON safely.  
-  I used `curl -i http://localhost:7774/data` to inspect both response body and headers.  
+  - Flask will auto-convert a dictionary into JSON in modern versions, but `jsonify()` is safer and more explicit — it guarantees correct formatting and sets the proper `Content-Type: application/json` header.  
+  - APIs need structured JSON because they’re consumed by machines (apps, browsers, services), not humans. JSON provides a standard, language-independent structure that avoids ambiguity — unlike raw text, which could be misinterpreted. For example, instead of guessing what `"hello world"` means, a client receives `{"hello": "world"}`, which is unambiguous.  
+
+- **How I learned it:**  
+  I experimented with different return types:  
+  - Returning a plain string → came back as raw text with `Content-Type: text/html`.  
+  - Returning a dictionary → Flask auto-returned JSON with correct headers.  
+  - Returning `jsonify(...)` → explicitly returned JSON safely every time.  
+  I confirmed these differences locally using `curl -i http://localhost:7774/data` to inspect both the body and the response headers.
+
 
 ---
 
 **3. Generating and manipulating data**  
 - **What I learned:**  
-  - How to remove duplicates efficiently without sorting twice.  
-  - Using `set()` would require re-sorting afterwards, which adds extra *O(n log n)* complexity.  
-  - This helped me understand the importance of considering time and space complexity when choosing an approach.  
-  - Through trial, I found that generating 15 numbers in a range of 1–30 increased the chance of duplicates, making the deduplication effect clearer.  
-  - I also came across alternatives (`dict.fromkeys()`, `itertools.groupby()`), but I opted for a manual loop because it makes the logic clearer for the reader.  
-- **How I learned it:** I broke the problem into steps in my script: generating lists with `random`, then testing different deduplication methods. I compared `sorted(set(...))` (two sorts) with single-pass approaches. After experimenting, I chose a manual loop for clarity.  
+  - How to generate lists of random numbers using Python’s `random` module.  
+  - How to remove duplicates efficiently without sorting twice. Using `set()` works for deduplication but, because sets are unordered, it forces a second sort — which i learned adds extra *O(n log n)* complexity. Encountering this made me think more carefully about time and space complexity when writing code.  
+  - The alternatives to `set()` such as `dict.fromkeys()` and `itertools.groupby()`. I ultimately opted for a manual loop because it keeps the logic transparent and easy for readers to follow.  
+  - Through experimentation, I found that generating 15 numbers within a range of 1–30 struck a good balance: it produced enough duplicates to demonstrate the deduplication step clearly, without creating an overwhelming list.  
+
+- **How I learned it:**  
+  - Consulted Python documentation and [online examples](https://www.datacamp.com/tutorial/python-how-to-remove-the-duplicates-from-a-list) for deduplication techniques.  
+  - Generated random lists with `random` and inspected the results.  
+  - Tested different approaches:  
+    - `sorted(set(...))` → simple, but involves two sorts.  
+    - `dict.fromkeys()` / `itertools.groupby()` → efficient, but less readable.  
+    - Manual loop → slightly longer, but the clearest way to show exactly how duplicates are removed.  
+
+
 
 ---
 
-**4. Running Flask locally vs. Docker**  
+**4. Running Flask locally vs Docker**  
 - **What I learned:**  
-  - The assignment required binding to `0.0.0.0:7774`.  
-  - Flask defaults to `127.0.0.1:5000`, which works fine locally but fails once containerised. Docker needs the app bound to `0.0.0.0` so it’s reachable from outside the container.  
-  - Flask automatically pulls in sub-dependencies (Werkzeug, Jinja2, MarkupSafe, Click, Itsdangerous, Blinker, Colorama), which are captured in `requirements.txt` via `pip freeze`.  
-- **How I learned it:** I first ran Flask locally with defaults (`127.0.0.1:5000`) and confirmed it worked. After moving to Docker, I couldn’t reach it from my host until I switched to `app.run(host="0.0.0.0", port=7774)`. Research into Flask + Docker networking explained why.  
+  - Flask defaults to `127.0.0.1:5000`, which works fine when running locally.  
+  - However, inside Docker, this binding fails because the service is only visible inside the container. To make it accessible externally, Flask needs to bind to `0.0.0.0`.  
+  - The binding that was specified in the assignment (`0.0.0.0:7774`) ensured the service was reachable from outside the container.
 
+- **How I learned it:**  
+  I first ran Flask locally with defaults (`127.0.0.1:5000`) and confirmed it worked. When I moved it into Docker, I anticipated that the default binding would fail (since I had already noted in my planning phase that the app needed to bind to `0.0.0.0`). As expected, I couldn’t reach it from the host until I switched to:  
+  ```python
+  app.run(host="0.0.0.0", port=7774)
+  ```
 ---
 
-**5. Docker basics**  
+**5. Docker fundamentals**  
 - **What I learned:**  
   - How to write a Dockerfile to containerise a Flask app, install dependencies from `requirements.txt`, and expose ports.  
-  - Host/port can be moved out of `app.run()` and handled in the Dockerfile, separating **application logic** from **deployment configuration**.  
-  - Why `python:3.12-slim` is preferred (removes unnecessary libraries → smaller, faster image).  
-  - The importance of Docker caching: copying `requirements.txt` first allows dependency layers to be cached, so changes in code don’t force a reinstall of dependencies unless `requirements.txt` changes.  
-- **How I learned it:** I studied Python + Flask Dockerfile examples, then rebuilt the image step by step (`docker build`, `docker run`). I found the host/port configuration detail in the Docker docs and confirmed it by testing.  
+  - The Flask dependencies that are captured when freezing requirements (Werkzeug, Jinja2, MarkupSafe, Click, Itsdangerous, Blinker, Colorama).  
+  - That host and port can be configured outside of `app.run()` and handled in the Dockerfile. This separates **application logic** from **deployment configuration**, which I learned is best practice → I adopted approach and updated my Python code accordingly.  
+  - Why `python:3.12-slim` is preferred (fewer unnecessary libraries → smaller, faster image).  
+  - The importance of Docker caching layers: copying `requirements.txt` first allows dependency layers to be cached, so only changes to `requirements.txt` trigger a reinstall.  
+
+- **How I learned it:**  
+I studied Dockerfile examples for Flask applications using [online resources](https://www.geeksforgeeks.org/devops/dockerize-your-flask-app/), then rebuilt the image step by step (`docker build`, `docker run`). While reviewing the [Docker documentation](https://docs.docker.com/build/concepts/context/), I learned that host/port configurations could be placed inside the Dockerfile and confirmed this by testing different builds.
+
 
 ---
 
 **6. Testing with curl**  
-- **What I learned:** How to verify endpoints from outside the container using `curl`.  
-- **How I learned it:** I ran `curl http://localhost:7774/data` on my host machine after starting the container. This confirmed the endpoint worked and returned valid JSON.  
+
+- **What I learned:**  
+  - How to verify that a Flask service running inside Docker is accessible from the host machine.  
+  - That `curl` can be used not just to fetch the raw response body but also to inspect HTTP status codes and headers, which is essential when testing APIs.  
+  - The different options for testing JSON responses: using `curl` in Git Bash (`curl http://localhost:7774/data`), `curl.exe` in PowerShell (`curl.exe http://localhost:7774/data`), and the PowerShell-native alternative `Invoke-RestMethod`.
+
+
+- **How I learned it:**  
+  I followed the [curl manual](https://curl.se/docs/manual.html) to understand available flags and behaviour. I then ran `curl http://localhost:7774/data` on my host after starting the container, which confirmed the endpoint was reachable and returned valid JSON.  
+  I also used the `-i` flag (`curl -i http://localhost:7774/data`) to inspect response headers such as `Content-Type: application/json`, reinforcing why APIs must return structured JSON.  
+  On Windows, I checked the [Microsoft docs](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-restmethod) to understand the differences between PowerShell’s `curl` alias, `curl.exe`, and `Invoke-RestMethod`.  
+
+## Reflections & Next Steps
+This project taught me a lot — the majority of my time was spent researching and reading documentation, but once I knew what to do, the implementation came together quickly. It also inspired me to experiment further by performing the same task using AWS services such as Lambda, which I’ve documented in a separate repository.
