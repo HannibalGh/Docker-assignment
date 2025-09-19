@@ -1,0 +1,15 @@
+# Python cache files:
+# These are automatically generated when Python runs and shouldn't be committed.
+__pycache__/
+*.pyc
+
+# Virtual environment:
+# The local Python environment (venv/) should not be committed.
+# Dependencies are tracked via requirements.txt instead.
+venv/
+
+# OS junk files:
+# Metadata files created by macOS (.DS_Store) or Windows (Thumbs.db).
+# They serve no purpose in the repo and just add clutter.
+.DS_Store
+Thumbs.db
