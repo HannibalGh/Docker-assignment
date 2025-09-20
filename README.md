@@ -89,7 +89,8 @@ Unlike ```curl.exe```, which displays the raw JSON as a single text string,
 ## Challenges & Lessons Learned
 
 ### Approach & Process
-When I first read the assignment specification, I recognised that I was already familiar with some of the required tasks, but other parts would require further research. I also factored the three-hour time constraint into my planning, which shaped how I prioritised learning and execution.
+When I first read the assignment specification, I recognised that I was already familiar with some of the required tasks, but other parts would require further research. I also factored the suggested three-hour time box into my planning, which shaped how I prioritised learning and execution.
+
 
 
 #### Planning
@@ -208,4 +209,9 @@ I studied Dockerfile examples for Flask applications using [online resources](ht
   On Windows, I checked the [Microsoft docs](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-restmethod) to understand the differences between PowerShell’s `curl` alias, `curl.exe`, and `Invoke-RestMethod`.  
 
 ## Reflections & Next Steps
-This project taught me a lot — the majority of my time was spent researching and reading documentation, but once I knew what to do, the implementation came together quickly. It also inspired me to experiment further by performing the same task using AWS services such as Lambda, which I’ve documented in a separate repository.
+Overall, this project taught me a lot. It was a very enjoyable experience, which gave me the opportunity to deepen my understanding of familiar technologies (Docker) while also exploring new ones (Flask). More importantly, it reinforced the value of breaking problems into manageable steps, planning carefully, and researching solutions before writing code — an approach that makes the journey more productive but also feel more rewarding.
+
+The majority of my time was spent researching approaches, consulting documentation, and writing this README. Once I understood the requirements and the tools, the implementation was straightforward. In total, the project took me slightly longer than the three-hour time box I had originally planned.  
+
+Looking ahead, I plan to use this knowledge as a springboard to explore more advanced solutions. In particular, I intend to attempt the same task using AWS services such as Lambda, which I will document in a separate repository located [here]().
+
