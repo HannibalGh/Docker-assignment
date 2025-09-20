@@ -49,11 +49,11 @@ docker run --rm -p 7774:7774 jagex-data-api
 - `--rm` → cleans up container after exit  
 - `-p 7774:7774` → maps port 7774 inside the container to port 7774 on the host (your local machine)  
 
-The service will now be available at: http://localhost:7774/data
-
 ## Testing
 
-You can query the API with a curl command:
+Access the running service at: http://localhost:7774/data to view the API response.
+
+You can also query the endpoint directly using a curl command:
 
 **On Git Bash (Linux/Mac/Windows Git Bash):**
 ```bash
