@@ -24,11 +24,11 @@ This setup demonstrates how to wrap a simple API inside a container — a common
 ## Project Structure
 ```bash
 docker-assignment/
-├── main.py          # Flask app
-├── Dockerfile       # Container instructions
-├── requirements.txt # Python dependencies
-├── README.md        # Documentation
-└── .gitignore       # Ignore venv, cache files, etc.
+├── main.py          # Contains the Flask app with a /data endpoint
+├── Dockerfile       # Defines how to build and run the container
+├── requirements.txt # Lists Python dependencies for the app
+├── README.md        # Provides usage instructions and project details
+└── .gitignore       # Specifies files and folders Git should ignore (e.g. venv, __pycache__)
 ```
 
 ## Getting Started
