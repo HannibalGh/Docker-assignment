@@ -132,19 +132,19 @@ I read Flask’s [official quickstart guide](https://flask.palletsprojects.com/e
 
 
 ---
-**2. Returning JSON properly**  
+**2. Returning JSON properly**
+**What I learned:**
+- The difference between returning raw text, dictionaries, and `jsonify()`.
+- Flask will auto-convert a dictionary into JSON in modern versions, but `jsonify()` is safer and more explicit — it guarantees correct formatting and sets the proper `Content-Type: application/json` header.
+- APIs need structured JSON because they’re consumed by machines (apps, browsers, services), not humans. JSON provides a standard, language-independent structure that avoids ambiguity — unlike raw text, which could be misinterpreted. For example, instead of guessing what `"hello world"` means, a client receives `{"hello": "world"}`, which is unambiguous.
+- **By default, `jsonify` may sort JSON keys alphabetically.** To preserve the insertion order you define in Python, you must set `app.json.sort_keys = False`. This ensures the output structure matches the dictionary order (e.g. `"unsorted"` before `"sorted"`). 
 
-- **What I learned:**  
-  - The difference between returning raw text, dictionaries, and `jsonify()`.  
-  - Flask will auto-convert a dictionary into JSON in modern versions, but `jsonify()` is safer and more explicit — it guarantees correct formatting and sets the proper `Content-Type: application/json` header.  
-  - APIs need structured JSON because they’re consumed by machines (apps, browsers, services), not humans. JSON provides a standard, language-independent structure that avoids ambiguity — unlike raw text, which could be misinterpreted. For example, instead of guessing what `"hello world"` means, a client receives `{"hello": "world"}`, which is unambiguous.  
+**How I learned it:**
+- Returning a plain string → came back as raw text with `Content-Type: text/html`.
+- Returning a dictionary → Flask auto-returned JSON with correct headers.
+- Returning `jsonify(...)` → explicitly returned JSON safely every time.
+- I noticed the key ordering issue by inspecting responses with `curl -i http://localhost:7774/data`. After consulting the [Flask documentation](https://flask.palletsprojects.com/en/latest/api/#flask.Flask.json), I learned about the `app.json.sort_keys` setting and applied it to keep my JSON output in the exact order I wrote it.
 
-- **How I learned it:**  
-  I experimented with different return types:  
-  - Returning a plain string → came back as raw text with `Content-Type: text/html`.  
-  - Returning a dictionary → Flask auto-returned JSON with correct headers.  
-  - Returning `jsonify(...)` → explicitly returned JSON safely every time.  
-  I confirmed these differences locally using `curl -i http://localhost:7774/data` to inspect both the body and the response headers.
 
 
 ---

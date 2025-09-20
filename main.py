@@ -6,6 +6,9 @@ from datetime import datetime
 # Flask is lightweight and lets me quickly spin up APIs without much setup
 app = Flask(__name__)
 
+# Ensure jsonify does not sort keys alphabetically and the output order is preserved.
+app.json.sort_keys = False
+
 # Define an endpoint at /data
 @app.route("/data") 
 def data():
