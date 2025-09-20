@@ -20,4 +20,6 @@ COPY . .
 EXPOSE 7774
 
 # Run the Flask development server on all interfaces (0.0.0.0) at port 7774
+# Note: host/port are defined here rather than hardcoded in main.py
+# → This keeps the app flexible (separation of concerns: app logic vs. deployment settings)
 CMD ["flask", "run", "--host=0.0.0.0", "--port=7774"]
